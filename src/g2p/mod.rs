@@ -118,14 +118,18 @@ pub struct G2PEngine {
 
 impl G2PEngine {
     pub fn new(dict_path: &str) -> io::Result<Self> {
-        Ok(Self {
-            dict: PhonemeDict::new(dict_path)?,
+        Ok(Self::from_dict(PhonemeDict::new(dict_path)?))
+    }
+
+    pub fn from_dict(dict: PhonemeDict) -> Self {
+        Self {
+            dict,
             merged_cache: RwLock::new(HashMap::with_capacity(2048)),
             common_cache: RwLock::new(HashMap::with_capacity(1024)),
             missing_merged: RwLock::new(std::collections::HashSet::new()),
             missing_common: RwLock::new(std::collections::HashSet::new()),
             segmentation_cache: RwLock::new(HashMap::with_capacity(512)),
-        })
+        }
     }
 
     fn cached_lookup_merged(&self, word: &str) -> Option<String> {

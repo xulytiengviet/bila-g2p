@@ -40,6 +40,9 @@ use crate::lang::vi::resources::{VI_LETTER_NAMES, COMMON_EMAIL_DOMAINS, DOMAIN_S
 // a path or email token whole or split it into syllables.
 static NORM_DICT: OnceLock<PhonemeDict> = OnceLock::new();
 
+#[cfg(target_arch = "wasm32")]
+pub fn init_norm_dict_bytes(dict: PhonemeDict) { let _ = NORM_DICT.set(dict); }
+
 pub fn init_norm_dict(path: &str) {
     if NORM_DICT.get().is_some() { return; }
     if let Ok(d) = PhonemeDict::new(path) {

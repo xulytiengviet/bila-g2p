@@ -195,3 +195,6 @@ fn sea_g2p_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(punc_norm, m)?)?;
     Ok(())
 }
+
+#[cfg(all(feature = "wasm", target_arch = "wasm32"))]
+mod wasm;

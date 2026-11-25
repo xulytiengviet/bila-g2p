@@ -13,3 +13,8 @@ document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{try{awai
 $('audit').onclick=()=>{$('diagnostics').textContent=JSON.stringify({audit:audit(),tests:selfTest()},null,2)};
 $('cdn').onclick=async()=>{const b=$('cdn');b.disabled=true;try{$('diagnostics').textContent='Đang tải CDN...';const sdk=await import('https://cdn.jsdelivr.net/npm/@vietflexmap/bila-g2p@1.0.0/docs/sdk/index.js');const tests=sdk.selfTest();$('diagnostics').textContent=JSON.stringify({cdn:tests.ok?'PASS':'FAIL',tests,conversion:sdk.fromCqn('Tôi yêu tiếng Việt')},null,2)}catch(e){$('diagnostics').textContent='CDN chưa xác minh: '+e.message}finally{b.disabled=false}};
 $('convert').click();
+import {loadOfflineRuntime} from './wasm-runtime.js';
+let offlineEngine;
+$('wasmload').onclick=async()=>{const b=$('wasmload');b.disabled=true;try{$('wasmstatus').textContent='Đang tải và xác minh SHA-256...';offlineEngine=await loadOfflineRuntime();$('wasmrun').disabled=false;$('wasmstatus').textContent='READY / WASM + SEAP cache';}catch(e){$('wasmstatus').textContent='WASM chưa sẵn sàng: '+e.message;}finally{b.disabled=false}};
+$('wasmrun').onclick=async()=>{try{const x=convert();const ir=await new BilaG2P({phonemize:t=>offlineEngine.phonemize(t)}).process($('source').value,opts());$('wasmstatus').textContent=JSON.stringify(ir,null,2);}catch(e){$('wasmstatus').textContent=e.message}};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(console.warn);

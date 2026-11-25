@@ -1,0 +1,60 @@
+name: WASM offline G2P
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: wasm-runtime-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: rustup update stable && rustup target add wasm32-unknown-unknown --toolchain stable
+      - run: cargo +stable build --release --locked --target wasm32-unknown-unknown --no-default-features --features wasm
+      - run: node tests/wasm-parity.mjs
+      - name: Prepare runtime
+        run: |
+          mkdir -p runtime
+          cp target/wasm32-unknown-unknown/release/sea_g2p_rs.wasm runtime/
+          python -c 'import hashlib,json,os,pathlib; h=lambda p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest(); pathlib.Path("runtime/manifest.json").write_text(json.dumps(dict(source=os.environ["GITHUB_SHA"],wasm=h("runtime/sea_g2p_rs.wasm"),dictionary=h("python/sea_g2p/sea_g2p.bin"))))'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bila-wasm-runtime
+          path: runtime/
+  publish:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: parity
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: bila-wasm-runtime
+          path: ${{ runner.temp }}/runtime
+      - name: Publish verified runtime to dedicated branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git ls-remote --exit-code --heads origin wasm-runtime; then
+            git fetch origin wasm-runtime
+            git switch -c wasm-runtime FETCH_HEAD
+          else
+            git switch --orphan wasm-runtime
+          fi
+          cp "$RUNNER_TEMP/runtime/"* .
+          git add sea_g2p_rs.wasm manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish verified WASM runtime"
+            git push origin HEAD:wasm-runtime
+          fi

@@ -16,8 +16,12 @@
 //!
 //! The mmap is never modified; `scripts/seap.py` is the writer.
 
+#[cfg(not(target_arch = "wasm32"))]
 use memmap2::Mmap;
+#[cfg(not(target_arch = "wasm32"))]
 use std::fs::File;
+#[cfg(target_arch = "wasm32")]
+use std::sync::Arc;
 use std::io;
 
 /// Section kinds for version-2 language tables.
@@ -31,8 +35,12 @@ pub const SECTION_TH_FREQ: u32 = 4;
 /// both languages with different readings, so the two cannot share a table.
 pub const SECTION_ID: u32 = 5;
 
+#[cfg_attr(target_arch = "wasm32", derive(Clone))]
 pub struct PhonemeDict {
+    #[cfg(not(target_arch = "wasm32"))]
     mmap: Mmap,
+    #[cfg(target_arch = "wasm32")]
+    mmap: Arc<[u8]>,
     string_count: u32,
     merged_count: u32,
     common_count: u32,
@@ -47,9 +55,16 @@ pub struct PhonemeDict {
 
 impl PhonemeDict {
     pub fn new(path: &str) -> io::Result<Self> {
-        let file = File::open(path)?;
-        let mmap = unsafe { Mmap::map(&file)? };
+        #[cfg(not(target_arch = "wasm32"))]
+        { let file = File::open(path)?; Self::parse(unsafe { Mmap::map(&file)? }) }
+        #[cfg(target_arch = "wasm32")]
+        { let _ = path; Err(io::Error::new(io::ErrorKind::Unsupported, "Use from_bytes in WASM")) }
+    }
 
+    #[cfg(target_arch = "wasm32")]
+    pub fn from_bytes(bytes: Arc<[u8]>) -> io::Result<Self> { Self::parse(bytes) }
+
+    fn parse(#[cfg(not(target_arch = "wasm32"))] mmap: Mmap, #[cfg(target_arch = "wasm32")] mmap: Arc<[u8]>) -> io::Result<Self> {
         if mmap.len() < 32 || &mmap[0..4] != b"SEAP" {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid dictionary format"));
         }
