@@ -17,20 +17,10 @@ jobs:
           node-version: '22'
       - run: npm test
       - run: npm pack --dry-run
-  pages:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: test
+      - run: node --check docs/studio.js
+  rust-native:
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-      contents: read
-    environment:
-      name: github-pages
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
-      - uses: actions/deploy-pages@v4
+      - run: rustup update stable
+      - run: cargo +stable test --release --locked --no-default-features --features capi

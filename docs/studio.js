@@ -1,0 +1,15 @@
+import {prepare,BilaG2P,httpPhonemizer,audit,selfTest} from './sdk/index.js';
+const $=id=>document.getElementById(id);
+let current=null;
+const opts=()=>({input:$('mode').value,allowAmbiguous:$('confirm').checked});
+function convert(){try{current=prepare($('source').value,opts());$('cqn').textContent=current.cqn;$('cvss').textContent=current.cvss;$('out').textContent=JSON.stringify(current,null,2);$('state').textContent='OK';return current;}catch(e){current=null;$('cqn').textContent='—';$('cvss').textContent='—';$('state').textContent='CHECK INPUT';$('out').textContent=e.message+'\n'+JSON.stringify(e.ambiguities||[],null,2);$('out').parentElement.open=true;throw e;}}
+$('convert').onclick=()=>{try{convert()}catch{}};
+$('sample').onclick=()=>{$('source').value=$('mode').value==='cqn'?'Tôi yêu tiếng Việt':'Toiy iwy tizb Vidf';$('convert').click()};
+$('swap').onclick=()=>{try{const x=convert(),to=$('mode').value==='cqn'?'cvss':'cqn';$('mode').value=to;$('source').value=to==='cqn'?x.cqn:x.cvss;$('convert').click()}catch{}};
+$('speak').onclick=()=>{try{const x=convert();if(!('speechSynthesis'in window))throw Error('Trình duyệt không hỗ trợ');const u=new SpeechSynthesisUtterance(x.cqn);u.lang='vi-VN';const v=speechSynthesis.getVoices().find(v=>v.lang.toLowerCase().startsWith('vi'));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){$('state').textContent=e.message}};
+$('stop').onclick=()=>{if('speechSynthesis'in window)speechSynthesis.cancel()};
+$('g2p').onclick=async()=>{const b=$('g2p');b.disabled=true;try{convert();const u=new URL($('endpoint').value);if(u.protocol!=='https:'&&!(u.protocol==='http:'&&['localhost','127.0.0.1'].includes(u.hostname)))throw Error('Cần HTTPS hoặc localhost');$('phones').textContent='Đang phân tích...';const g=new BilaG2P({phonemize:httpPhonemizer(u.href)});$('phones').textContent=JSON.stringify(await g.process($('source').value,opts()),null,2)}catch(e){$('phones').textContent=e.message}finally{b.disabled=false}};
+document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText($(b.dataset.copy).textContent);b.textContent='Đã sao chép'}catch{b.textContent='Không thể sao chép; chọn văn bản'}}); 
+$('audit').onclick=()=>{$('diagnostics').textContent=JSON.stringify({audit:audit(),tests:selfTest()},null,2)};
+$('cdn').onclick=async()=>{const b=$('cdn');b.disabled=true;try{$('diagnostics').textContent='Đang tải CDN...';const sdk=await import('https://cdn.jsdelivr.net/npm/@vietflexmap/bila-g2p@1.0.0/docs/sdk/index.js');const tests=sdk.selfTest();$('diagnostics').textContent=JSON.stringify({cdn:tests.ok?'PASS':'FAIL',tests,conversion:sdk.fromCqn('Tôi yêu tiếng Việt')},null,2)}catch(e){$('diagnostics').textContent='CDN chưa xác minh: '+e.message}finally{b.disabled=false}};
+$('convert').click();

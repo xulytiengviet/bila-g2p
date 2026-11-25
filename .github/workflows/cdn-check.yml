@@ -1,0 +1,23 @@
+name: Published CDN check
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/cdn-check.yml", "docs/sdk/**", "package.json"]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm view @vietflexmap/bila-g2p@1.0.0 version
+      - name: Download published ESM and converter
+        run: |
+          mkdir -p verify
+          curl --fail --retry 3 -L https://cdn.jsdelivr.net/npm/@vietflexmap/bila-g2p@1.0.0/docs/sdk/index.js -o verify/index.js
+          curl --fail --retry 3 -L https://cdn.jsdelivr.net/npm/@vietflexmap/bila-g2p@1.0.0/docs/sdk/converter.js -o verify/converter.js
+          echo '{"type":"module"}' > verify/package.json
+          node --input-type=module -e "import {selfTest,fromCqn} from './verify/index.js'; if(!selfTest().ok || !fromCqn('Tôi yêu tiếng Việt').cvss) process.exit(1); console.log(selfTest());"
