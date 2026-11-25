@@ -1,5 +1,5 @@
-const CACHE='bila-studio-v4';
-const assets=['./','./index.html','./studio.css?v=20261125.4','./studio.js?v=4','./i18n.js?v=4','./assets/flag-vi.svg','./assets/flag-en.svg','./LICENSE-MIT.txt','./wasm-runtime.js','./sdk/index.js','./sdk/converter.js','./assets/icon.svg','./assets/bila-g2p.svg?v=4','./assets/grapheme-to-phoneme.svg'];
+const CACHE='bila-studio-v5';
+const assets=['./','./index.html','./studio.css?v=20261125.5','./studio.js?v=5','./i18n.js?v=5','./assets/flag-vi.svg','./assets/flag-en.svg','./LICENSE-MIT.txt','./wasm-runtime.js','./sdk/index.js','./sdk/converter.js','./assets/icon.svg','./assets/bila-g2p.svg?v=5','./assets/grapheme-to-phoneme.svg'];
 self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open(CACHE);await c.addAll(assets.map(u=>new Request(u,{cache:'reload'})));await self.skipWaiting()})()));
 self.addEventListener('activate',e=>e.waitUntil((async()=>{for(const k of await caches.keys())if(/^bila-studio-v\d+$/.test(k)&&k!==CACHE)await caches.delete(k);await self.clients.claim()})()));
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==self.location.origin||!u.href.startsWith(self.registration.scope))return;e.respondWith((async()=>{const c=await caches.open(CACHE);try{const r=await fetch(e.request);if(r.ok)return r;const old=await c.match(e.request);return old||r}catch{const old=await c.match(e.request);if(old)return old;if(e.request.mode==='navigate')return await c.match('./index.html')||Response.error();return Response.error()}})())});

@@ -12,7 +12,7 @@ try {
   await page.locator('#lang-en').click();assert.equal(await page.locator('html').getAttribute('lang'),'en');
   assert.equal(await page.locator('a[href="#about"]').first().textContent(),'About');
   await page.locator('#lang-vi').click();assert.equal(await page.locator('html').getAttribute('lang'),'vi');
-  await page.locator('#audit').click();assert.equal(JSON.parse(await page.locator('#diagnostics').textContent()).tests.ok,true);
+  await page.locator('#clear').click();assert.equal(await page.locator('#source').inputValue(),'');await page.locator('#sample').click();assert.equal(await page.locator('#cqn').textContent(),'Tôi yêu tiếng Việt');await page.locator('#theme').click();assert.equal(await page.locator('html').getAttribute('data-theme'),'light');await page.locator('#theme').click();await page.locator('#source').fill('Tôi yêu tiếng Việt');await page.locator('#source').press('Control+Enter');assert.equal(await page.locator('#state').textContent(),'OK');await page.locator('#audit').click();assert.equal(JSON.parse(await page.locator('#diagnostics').textContent()).tests.ok,true);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'horizontal overflow '+width);
   assert.deepEqual(errors,[]);
   await page.close();console.log('PASS viewport',width);
