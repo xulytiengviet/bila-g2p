@@ -1,0 +1,3 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {phones,configuration,airflow,project,ellipsoid} from '../docs/sdk/articulation3d.js';
+test('nasals, closure and voicing',()=>{for(const p of ['m','n','ŋ']){assert.equal(airflow(p).route,'nasal');assert.equal(configuration(p).voiced,true)}assert.equal(airflow('t').blocked,true);assert.equal(airflow('ʔ').blocked,true);assert.equal(airflow('a').route,'oral');assert.equal(configuration('s').voiced,false);assert.throws(()=>configuration('unknown'))});
+test('3D rotation and finite mesh',()=>{assert.notDeepEqual(project([1,0,1],0,0,1,0,0),project([1,0,1],90,0,1,0,0));assert.ok(ellipsoid([0,0,0],[1,2,3]).flat(2).every(Number.isFinite));assert.ok(Object.keys(phones).length>=20)});
