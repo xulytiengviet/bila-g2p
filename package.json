@@ -1,0 +1,27 @@
+{
+  "name": "@xulytiengviet/bila-g2p",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Vietnamese dual-input phonetic middleware",
+  "exports": {
+    ".": "./docs/sdk/index.js"
+  },
+  "files": [
+    "docs/sdk",
+    "MIDDLEWARE.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test tests/middleware.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xulytiengviet/bila-g2p.git"
+  }
+}
