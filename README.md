@@ -1,4 +1,31 @@
-# 🦭 SEA-G2P
+# Bila-G2P · Vietnamese Grapheme-to-Phoneme
+
+![Bila-G2P pixel logo](docs/assets/bila-g2p.svg)
+
+![Grapheme-to-Phoneme](docs/assets/grapheme-to-phoneme.svg)
+
+[![npm](https://img.shields.io/npm/v/@vietflexmap/bila-g2p)](https://www.npmjs.com/package/@vietflexmap/bila-g2p) · [Studio](https://xulytiengviet.github.io/bila-g2p/) · [Middleware guide](MIDDLEWARE.md)
+
+Bila-G2P is a Vietnamese phonetic middleware with parallel CQN and CVNSS4.0 inputs, a shared SEA-G2P phoneme engine, and replaceable audio adapters. The JavaScript package contains the converter and middleware, not the Rust dictionary or a speech model.
+
+```sh
+npm install @vietflexmap/bila-g2p
+```
+
+```js
+import { fromCqn, fromCvss, selfTest } from '@vietflexmap/bila-g2p';
+console.log(fromCqn('Tôi yêu tiếng Việt'));
+console.log(fromCvss('Toiy iwy tizb Vidf'));
+console.log(selfTest());
+```
+
+Browser ESM: https://cdn.jsdelivr.net/npm/@vietflexmap/bila-g2p@1.0.0/docs/sdk/index.js
+
+Actual phonemization requires a SEA-G2P backend. Offline WASM and phoneme-driven audio synthesis are future work. Original SEA-G2P documentation and attribution follow.
+
+---
+
+## Upstream SEA-G2P
 
 <img width="1221" height="656" alt="image" src="https://github.com/user-attachments/assets/01220177-815b-4012-8f65-8a2a86beddf9" />
 

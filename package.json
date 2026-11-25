@@ -1,5 +1,5 @@
 {
-  "name": "@xulytiengviet/bila-g2p",
+  "name": "@vietflexmap/bila-g2p",
   "version": "1.0.0",
   "type": "module",
   "description": "Vietnamese dual-input phonetic middleware",
@@ -23,5 +23,16 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xulytiengviet/bila-g2p.git"
-  }
+  },
+  "homepage": "https://xulytiengviet.github.io/bila-g2p/",
+  "bugs": {
+    "url": "https://github.com/xulytiengviet/bila-g2p/issues"
+  },
+  "keywords": [
+    "vietnamese",
+    "g2p",
+    "phoneme",
+    "cvnss4",
+    "tts"
+  ]
 }

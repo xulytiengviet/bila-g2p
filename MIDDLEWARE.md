@@ -18,3 +18,16 @@ Pass an async synthesize(ir, options) adapter to BilaG2P. The adapter is respons
 
 ## Attribution
 SEA-G2P upstream: Pham Nguyen Ngoc Bao. Preserve upstream LICENSE. CVNSS4.0 converter supplied by repository owner; verify separate redistribution terms before npm publication.
+
+## Official distribution
+
+- npm: https://www.npmjs.com/package/@vietflexmap/bila-g2p
+- CDN ESM: https://cdn.jsdelivr.net/npm/@vietflexmap/bila-g2p@1.0.0/docs/sdk/index.js
+- Source: https://github.com/xulytiengviet/bila-g2p
+- Studio: https://xulytiengviet.github.io/bila-g2p/
+
+```sh
+npm install @vietflexmap/bila-g2p
+```
+
+The GitHub owner and npm scope differ intentionally. Published 1.0.0 is immutable; subsequent package-content changes require a new version. The static Studio uses local SDK assets, not an external CDN, for reliability.
