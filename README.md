@@ -304,3 +304,6 @@ To install for development purposes:
    cargo test --release --no-default-features --features capi   # the same, without PyO3
    python -m pytest tests/   # Python end-to-end tests
    ```
+
+## Studio contact and licensing
+Long Ngo · [Bilingual Studio](https://xulytiengviet.github.io/bila-g2p/) · [GitHub Issues](https://github.com/xulytiengviet/bila-g2p/issues). Newly authored Studio UI and documentation are [MIT](docs/LICENSE-MIT.txt); upstream SEA-G2P remains Apache 2.0. Converter and third-party data retain their own terms.
