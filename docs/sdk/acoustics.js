@@ -1,0 +1,13 @@
+// Educational articulation metadata, not derived from SEA-G2P.
+export const atlas={
+m:{place:['Hai môi','Bilabial'],manner:['Âm mũi','Nasal'],voiced:true,nasal:true,point:[372,242],tongue:'M260 298 Q300 260 355 270 Q350 300 310 314'},
+t:{place:['Lợi','Alveolar'],manner:['Âm tắc','Stop'],voiced:false,nasal:false,point:[344,226],tongue:'M260 298 Q302 275 344 226 Q355 258 310 314'},
+'ŋ':{place:['Ngạc mềm','Velar'],manner:['Âm mũi','Nasal'],voiced:true,nasal:true,point:[245,220],tongue:'M260 298 Q220 230 245 220 Q325 245 350 273 Q345 300 310 314'},
+s:{place:['Lợi','Alveolar'],manner:['Âm xát','Fricative'],voiced:false,nasal:false,point:[344,232],tongue:'M260 298 Q305 260 342 234 Q350 260 310 314'},
+a:{place:['Lưỡi thấp','Open vowel'],manner:['Nguyên âm','Vowel'],voiced:true,nasal:false,point:[295,290],tongue:'M260 298 Q300 283 355 276 Q350 300 310 314'},
+i:{place:['Lưỡi trước cao','Close front'],manner:['Nguyên âm','Vowel'],voiced:true,nasal:false,point:[332,243],tongue:'M260 298 Q295 245 332 240 Q365 253 310 314'},
+u:{place:['Lưỡi sau cao','Close back'],manner:['Nguyên âm tròn môi','Rounded vowel'],voiced:true,nasal:false,point:[249,239],tongue:'M260 298 Q226 245 249 239 Q305 245 350 275 Q345 300 310 314'}};
+export function fftFrame(samples,start,n){if(![512,1024,2048].includes(n))throw Error('Unsupported FFT size');const re=new Float64Array(n),im=new Float64Array(n);let sum=0;for(let i=0;i<n;i++){const w=.5-.5*Math.cos(2*Math.PI*i/(n-1));sum+=w;re[i]=(samples[start+i]||0)*w}for(let i=1,j=0;i<n;i++){let b=n>>1;for(;j&b;b>>=1)j^=b;j^=b;if(i<j)[re[i],re[j]]=[re[j],re[i]]}for(let len=2;len<=n;len*=2)for(let i=0;i<n;i+=len)for(let k=0;k<len/2;k++){const a=-2*Math.PI*k/len,c=Math.cos(a),s=Math.sin(a),p=i+k,q=p+len/2,r=re[q]*c-im[q]*s,t=re[q]*s+im[q]*c;re[q]=re[p]-r;im[q]=im[p]-t;re[p]+=r;im[p]+=t}return Array.from(re.slice(0,n/2+1),(v,i)=>20*Math.log10(Math.max(1e-9,Math.hypot(v,im[i])*(i===0||i===n/2?1:2)/sum)))}
+export function frames(samples,n,maxFrames=420){const hop=n/2, count=Math.max(1,Math.ceil(Math.max(0,samples.length-n)/hop)+1),stride=Math.max(1,Math.ceil(count/maxFrames));return {hop,stride,frames:Array.from({length:Math.ceil(count/stride)},(_,i)=>({start:i*stride*hop,db:fftFrame(samples,i*stride*hop,n)}))}}
+export function sampleSignal(rate=16000){return Float32Array.from({length:rate*2},(_,i)=>{const t=i/rate;return .45*Math.sin(2*Math.PI*(180*t+170*t*t))*Math.sin(Math.PI*t/2)**2+.15*Math.sin(2*Math.PI*1200*t)})}
+export function stats(a){let peak=0,sum=0;for(const v of a){peak=Math.max(peak,Math.abs(v));sum+=v*v}return {peak,rms:Math.sqrt(sum/Math.max(1,a.length))}}
