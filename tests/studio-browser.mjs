@@ -7,6 +7,8 @@ try {
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8080/');
   await page.waitForFunction(()=>document.querySelector('#state').textContent==='OK');
+  assert.equal(await page.locator('#endpoint').inputValue(),'');
+  assert.equal(await page.locator('#native-options').getAttribute('open'),null);
   assert.equal(await page.locator('#cqn').textContent(),'Tôi yêu tiếng Việt');
   assert.equal(await page.locator('#cvss').textContent(),'Toiy iwy tizb Vidf');
   await page.locator('#lang-en').click();assert.equal(await page.locator('html').getAttribute('lang'),'en');
