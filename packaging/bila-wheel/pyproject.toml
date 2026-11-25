@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "bila-g2p"
+version = "1.0.0"
+description = "Vietnamese phonetic middleware and local CVNSS4.0 Studio"
+requires-python = ">=3.10"
+dependencies = ["sea-g2p==0.10.0"]
+authors = [{name = "Long Ngo"}]
+readme = "README.md"
+[project.urls]
+Homepage = "https://xulytiengviet.github.io/bila-g2p/"
+Repository = "https://github.com/xulytiengviet/bila-g2p"
+[project.scripts]
+bila-g2p = "bila_g2p.cli:main"
+[tool.setuptools.packages.find]
+where = ["src"]
+[tool.setuptools.package-data]
+bila_g2p = ["assets/*", "assets/assets/*", "assets/sdk/*"]
