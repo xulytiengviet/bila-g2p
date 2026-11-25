@@ -1,0 +1,20 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({headless:true});
+try {
+ for(const width of [1440,390,320]){
+  const page=await browser.newPage({viewport:{width,height:900}});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://127.0.0.1:8080/');
+  await page.waitForFunction(()=>document.querySelector('#state').textContent==='OK');
+  assert.equal(await page.locator('#cqn').textContent(),'Tôi yêu tiếng Việt');
+  assert.equal(await page.locator('#cvss').textContent(),'Toiy iwy tizb Vidf');
+  await page.locator('#lang-en').click();assert.equal(await page.locator('html').getAttribute('lang'),'en');
+  assert.equal(await page.locator('a[href="#about"]').first().textContent(),'About');
+  await page.locator('#lang-vi').click();assert.equal(await page.locator('html').getAttribute('lang'),'vi');
+  await page.locator('#audit').click();assert.equal(JSON.parse(await page.locator('#diagnostics').textContent()).tests.ok,true);
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'horizontal overflow '+width);
+  assert.deepEqual(errors,[]);
+  await page.close();console.log('PASS viewport',width);
+ }
+}finally{await browser.close()}

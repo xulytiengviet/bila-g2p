@@ -1,4 +1,4 @@
-import {tr} from './i18n.js';
+import {tr} from './i18n.js?v=4';
 import {prepare,BilaG2P,httpPhonemizer,audit,selfTest} from './sdk/index.js';
 const $=id=>document.getElementById(id);
 let current=null;
@@ -10,7 +10,7 @@ $('swap').onclick=()=>{try{const x=convert(),to=$('mode').value==='cqn'?'cvss':'
 $('speak').onclick=()=>{try{const x=convert();if(!('speechSynthesis'in window))throw Error(tr("Trình duyệt không hỗ trợ","Browser not supported"));const u=new SpeechSynthesisUtterance(x.cqn);u.lang='vi-VN';const v=speechSynthesis.getVoices().find(v=>v.lang.toLowerCase().startsWith('vi'));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){$('state').textContent=e.message}};
 $('stop').onclick=()=>{if('speechSynthesis'in window)speechSynthesis.cancel()};
 $('g2p').onclick=async()=>{const b=$('g2p');b.disabled=true;try{convert();const u=new URL($('endpoint').value);if(u.protocol!=='https:'&&!(u.protocol==='http:'&&['localhost','127.0.0.1'].includes(u.hostname)))throw Error(tr("Cần HTTPS hoặc localhost","HTTPS or localhost required"));$('phones').textContent=tr("Đang phân tích...","Phonemizing...");const g=new BilaG2P({phonemize:httpPhonemizer(u.href)});$('phones').textContent=JSON.stringify(await g.process($('source').value,opts()),null,2)}catch(e){$('phones').textContent=e.message}finally{b.disabled=false}};
-document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText($(b.dataset.copy).textContent);b.textContent=tr("Đã sao chép","Copied")}catch{b.textContent=tr("Không thể sao chép; chọn văn bản","Copy failed; select text")}}); 
+document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText($(b.dataset.copy).textContent);$('state').textContent=tr("Đã sao chép","Copied")}catch{$('state').textContent=tr("Không thể sao chép; chọn văn bản","Copy failed; select text")}}); 
 $('audit').onclick=()=>{$('diagnostics').textContent=JSON.stringify({audit:audit(),tests:selfTest()},null,2)};
 $('cdn').onclick=async()=>{const b=$('cdn');b.disabled=true;try{$('diagnostics').textContent=tr("Đang tải CDN...","Loading CDN...");const sdk=await import('https://cdn.jsdelivr.net/npm/@vietflexmap/bila-g2p@1.0.0/docs/sdk/index.js');const tests=sdk.selfTest();$('diagnostics').textContent=JSON.stringify({cdn:tests.ok?'PASS':'FAIL',tests,conversion:sdk.fromCqn('Tôi yêu tiếng Việt')},null,2)}catch(e){$('diagnostics').textContent=tr("CDN chưa xác minh: ","CDN not verified: ")+e.message}finally{b.disabled=false}};
 $('convert').click();
@@ -18,4 +18,4 @@ import {loadOfflineRuntime} from './wasm-runtime.js';
 let offlineEngine;
 $('wasmload').onclick=async()=>{const b=$('wasmload');b.disabled=true;try{$('wasmstatus').textContent=tr("Đang tải và xác minh SHA-256...","Downloading and verifying SHA-256...");offlineEngine=await loadOfflineRuntime();$('wasmrun').disabled=false;$('wasmstatus').textContent='READY / WASM + SEAP cache';}catch(e){$('wasmstatus').textContent=tr("WASM chưa sẵn sàng: ","WASM not ready: ")+e.message;}finally{b.disabled=false}};
 $('wasmrun').onclick=async()=>{try{const x=convert();const ir=await new BilaG2P({phonemize:t=>offlineEngine.phonemize(t)}).process($('source').value,opts());$('wasmstatus').textContent=JSON.stringify(ir,null,2);}catch(e){$('wasmstatus').textContent=e.message}};
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(console.warn);
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=4',{updateViaCache:'none'}).catch(console.warn);
