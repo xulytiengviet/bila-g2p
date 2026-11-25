@@ -1,4 +1,4 @@
-import {tr} from './i18n.js?v=5';
+import {tr} from './i18n.js?v=6';
 import {prepare,BilaG2P,httpPhonemizer,audit,selfTest} from './sdk/index.js';
 const $=id=>document.getElementById(id);
 let current=null;
@@ -21,6 +21,6 @@ import {loadOfflineRuntime} from './wasm-runtime.js';
 let offlineEngine;
 $('wasmload').onclick=async()=>{const b=$('wasmload');b.disabled=true;try{$('wasmstatus').textContent=tr("Đang tải và xác minh SHA-256...","Downloading and verifying SHA-256...");offlineEngine=await loadOfflineRuntime();$('wasmrun').disabled=false;$('wasmstatus').textContent='READY / WASM + SEAP cache';}catch(e){$('wasmstatus').textContent=tr("WASM chưa sẵn sàng: ","WASM not ready: ")+e.message;}finally{b.disabled=false}};
 $('wasmrun').onclick=async()=>{try{const x=convert();const ir=await new BilaG2P({phonemize:t=>offlineEngine.phonemize(t)}).process($('source').value,opts());$('wasmstatus').textContent=JSON.stringify(ir,null,2);}catch(e){$('wasmstatus').textContent=e.message}};
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=5',{updateViaCache:'none'}).catch(console.warn);
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=6',{updateViaCache:'none'}).catch(console.warn);
 
 $('source').addEventListener('input',()=>{count();current=null;$('state').textContent='EDITING';$('cqn').textContent='—';$('cvss').textContent='—';$('out').textContent='';});$('mode').addEventListener('change',()=>{$('source').dispatchEvent(new Event('input'))});$('confirm').addEventListener('change',()=>{$('source').dispatchEvent(new Event('input'))});$('source').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();$('convert').click()}});$('clear').onclick=()=>{$('source').value='';$('source').dispatchEvent(new Event('input'));$('source').focus()};$('download').onclick=()=>{try{const ir=convert();const url=URL.createObjectURL(new Blob([JSON.stringify(ir,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='bila-g2p.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notify(tr('Đã tạo JSON','JSON created'))}catch(e){notify(e.message)}};count();
