@@ -6,6 +6,8 @@ from pathlib import Path
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from threading import Lock
 from sea_g2p import SEAPipeline
+from speech import Speech
+speech = Speech()
 
 pipeline = SEAPipeline(lang="vi")
 lock = Lock()
@@ -32,7 +34,37 @@ class Handler(SimpleHTTPRequestHandler):
         else:
             super().do_GET()
 
+    def handle_speech(self):
+        try:
+            if self.headers.get("Origin") not in (None, f"http://127.0.0.1:{self.server.server_port}", f"http://localhost:{self.server.server_port}"):
+                self.reply(403, {"error":"Origin rejected"}); return
+            size=int(self.headers.get("Content-Length","0"))
+            limit=2_000_000 if self.path=="/asr" else 8192
+            if not 0<size<=limit:
+                raise ValueError("Invalid length")
+            if self.path=="/asr":
+                if self.headers.get_content_type()!="audio/wav":
+                    self.reply(415, {"error":"Expected audio/wav"}); return
+                self.reply(200, {"text":speech.recognize_wav(self.rfile.read(size))})
+            else:
+                if self.headers.get_content_type()!="application/json":
+                    self.reply(415, {"error":"Expected JSON"}); return
+                data=json.loads(self.rfile.read(size))
+                raw=speech.synthesize_wav(data["text"])
+                self.send_response(200)
+                self.send_header("Content-Type","audio/wav")
+                self.send_header("Content-Length",str(len(raw)))
+                self.send_header("Cache-Control","no-store")
+                self.end_headers()
+                self.wfile.write(raw)
+        except (ValueError,TypeError,KeyError,EOFError):
+            self.reply(400,{"error":"Invalid speech input"})
+        except Exception:
+            self.reply(503,{"error":"Speech backend unavailable; check local configuration"})
+
     def do_POST(self):
+        if self.path in ("/asr", "/tts"):
+            self.handle_speech(); return
         if self.path != "/phonemize":
             self.reply(404, {"error": "Not found"}); return
         if self.headers.get_content_type() != "application/json":
@@ -56,7 +88,10 @@ class Handler(SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=18765)
+    parser.add_argument("--asr-model-dir")
+    parser.add_argument("--enable-tts", action="store_true")
     args = parser.parse_args()
+    speech = Speech(args.asr_model_dir, args.enable_tts)
     try:
         with ThreadingHTTPServer(("127.0.0.1", args.port), partial(Handler, directory=str(ROOT))) as httpd:
             print(f"Bila-G2P Studio: http://127.0.0.1:{args.port}/", flush=True)

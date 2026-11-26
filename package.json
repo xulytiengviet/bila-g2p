@@ -1,10 +1,12 @@
 {
   "name": "@vietflexmap/bila-g2p",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "Vietnamese dual-input phonetic middleware",
   "exports": {
-    ".": "./docs/sdk/index.js"
+    ".": "./docs/sdk/index.js",
+    "./upi": "./docs/sdk/upi.js",
+    "./task-ir": "./docs/sdk/task-ir.js"
   },
   "files": [
     "docs/sdk",
@@ -12,7 +14,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node --test tests/middleware.test.mjs tests/research.test.mjs tests/acoustics.test.mjs tests/articulation3d.test.mjs"
+    "test": "node --test tests/middleware.test.mjs tests/research.test.mjs tests/acoustics.test.mjs tests/articulation3d.test.mjs tests/upi.test.mjs tests/task-ir.test.mjs"
   },
   "engines": {
     "node": ">=18"
