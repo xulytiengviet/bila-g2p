@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {pack27,unpack27,trits27,phoneticIR,p2g,recognize,speak} from '../docs/sdk/upi.js';
+test('transport round trip',()=>{for(const s of ['','Việt Nam','˧ ɗˈiɛ4m','English ไทย 😀'])assert.equal(unpack27(pack27(s)),s);assert.throws(()=>unpack27('ZZ'));assert.equal(new Set(trits27(' ABCDEFGHIJKLMNOPQRSTUVWXYZ').map(String)).size,27)});
+test('ambiguous P2G',async()=>{const phonemize=async()=> 'za';assert.deepEqual(await p2g('za',['da','gia'],{phonemize}),{matches:['da','gia'],status:'ambiguous'})});
+test('adapters explicit',async()=>{await assert.rejects(phoneticIR('Việt'));const ir=await recognize(null,{asr:async()=> 'Việt',phonemize:async()=> 'viet'});assert.equal(ir.schema,'bila.upi.v1');assert.equal(await speak(ir,{tts:async t=>t}),'Việt')});
