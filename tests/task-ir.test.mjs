@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {compileTask,simulateTask} from '../docs/sdk/task-ir.js';
+test('finite grammar and simulation',()=>{const task=compileTask('Tiến một bước.');assert.equal(task.op,'STEP_FORWARD');assert.deepEqual(simulateTask(task),{x:0,y:1,heading:0});assert.equal(compileTask('đừng tiến một bước').status,'rejected');assert.equal(compileTask('tiến một bước rồi quay trái').status,'rejected');assert.throws(()=>simulateTask({...task,op:'TURN_LEFT'}));assert.throws(()=>simulateTask(task,{x:0,y:5,heading:0}));});
