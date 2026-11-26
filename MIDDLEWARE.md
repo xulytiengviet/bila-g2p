@@ -35,3 +35,19 @@ The GitHub owner and npm scope differ intentionally. Published 1.0.0 is immutabl
 ## Lightweight Wheel Edition 1.0.0
 
 Recommended for Windows x64 with Python 3.10: download the tested Offline ZIP artifact from the [Bila lightweight wheel workflow](https://github.com/xulytiengviet/bila-g2p/actions/workflows/bila-wheel.yml), extract, run install.bat then start-studio.bat. Python must already be installed. No Rust compiler, MSVC or SDK is required. The ZIP bundles the upstream SEA-G2P 0.10.0 binary wheel; WASM runtime is not included. Thin wheel can be installed with `python -m pip install --only-binary=:all: path/to/bila_g2p-1.0.0-py3-none-any.whl`. CLI: `bila-g2p doctor`, `bila-g2p phonemize "Xin chao Viet Nam"`, `bila-g2p studio`. Python API returns a dictionary with CQN and phonemes; CVNSS conversion remains in the Studio JavaScript SDK. Build locally: `python -m pip install build` then `python scripts/build_bila_wheel.py`. No PyPI publication is configured for this independent distribution.
+
+## Unified speech IR (1.1.0 development)
+
+Studio: [Bila-UPI](https://xulytiengviet.github.io/bila-g2p/upi.html). Import from `@vietflexmap/bila-g2p/upi` after a package release, or directly from `docs/sdk/upi.js` now. Existing v1 APIs remain unchanged.
+
+```js
+import {phoneticIR,p2g,recognize,speak} from './docs/sdk/upi.js';
+import {httpPhonemizer} from './docs/sdk/index.js';
+const phonemize=httpPhonemizer('http://127.0.0.1:18765/phonemize');
+const ir=await phoneticIR('Tôi yêu tiếng Việt',{phonemize});
+console.log(await p2g(ir.phonemes,['Tôi yêu tiếng Việt'],{phonemize}));
+```
+
+ASR adapter returns a transcript from audio; TTS adapter consumes CQN text and options. Neither model is bundled. G2P after ASR is not acoustic phoneme recognition. P2G is bounded exact candidate matching, not a linguistic inverse. Base27 transport encodes UTF-8 bytes in pairs of symbols (not compression); trits use three balanced digits per symbol. Native CVNSS ambiguity checks remain active. Vietnamese only for this adapter; SEA-G2P upstream also supports other languages.
+
+Research roadmap: independent VietNote baseline, phoneme CTC head, dialect-aware tone supervision, P2G ranking, VieNeu synthetic data with speaker-disjoint real test sets, TinyLLM punctuation, QAT INT4/Trit. Measure SyER/PER/tone error, code-switch accuracy, P95 latency, RAM, MOS and RTF. No claimed improvement before experiments. VietNote weights currently CC BY-NC-SA 4.0; VieNeu v4 proprietary. Check data/weight licenses separately. See upstream [VietNote](https://github.com/kaisye/vietnote-asr), [VieNeu](https://github.com/pnnbao97/VieNeu-TTS), [SEA-G2P](https://github.com/pnnbao97/sea-g2p).
